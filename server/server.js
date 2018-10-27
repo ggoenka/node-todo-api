@@ -1,3 +1,5 @@
+require('./config/config');
+
 const _ = require('lodash');
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -8,8 +10,6 @@ const {TodoModel} = require('./models/Todo');
 const {UserModel} = require('./models/User');
 
 var app = express();
-
-const port = process.env.PORT || 3000;
 
 app.use(bodyParser.json());
 
@@ -83,8 +83,8 @@ app.patch('/todos/:id', (req, res) => {
     }).catch((e) => res.status(500).send({"message": "Fatal error!"}));
 });
 
-app.listen(port, () => {
-    console.log(`Started on port ${port}`);
+app.listen(process.env.PORT, () => {
+    console.log(`Started on port ${process.env.PORT}`);
 });
 
 module.exports = {app};
