@@ -12,7 +12,9 @@ const todos = [
     },
     {
         _id: new ObjectID(),
-        text: 'Second todo'
+        text: 'Second todo',
+        completed: true,
+        completedAt: 333
     }
 ];
 
@@ -126,6 +128,37 @@ describe('DELETE /todos/:id', () => {
             .expect(400)
             .expect((res) => {
                 expect(res.text).toBe(`Malformed input ${todos[0]._id.toHexString() + '1'}.`);
+            })
+            .end(done);
+    });
+});
+
+describe('PATCH /todos/:id', () => {
+
+    it('should patch a todo to mark it completed', (done) => {
+        let {_id} = todos[0];
+        request(app)
+            .patch(`/todos/${_id.toHexString()}`)
+            .send({completed: true})
+            .expect(203)
+            .expect((res) => {
+                expect(res.body.todo.completed).toBeTruthy();
+                expect(typeof res.body.todo.completedAt).toBe('number');
+                expect(res.body.todo._id).toBe(_id.toHexString());
+            })
+            .end(done);
+    });
+
+    it('should patch a todo to mark it incompleted', (done) => {
+        let {_id} = todos[1];
+
+        request(app)
+            .patch(`/todos/${_id.toHexString()}`)
+            .send({completed: false})
+            .expect(203)
+            .expect((res) => {
+                expect(res.body.todo.completedAt).toBeNull();
+                expect(res.body.todo.completed).toBeFalsy();
             })
             .end(done);
     });
