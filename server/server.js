@@ -1,3 +1,4 @@
+const _ = require('lodash');
 const express = require('express');
 const bodyParser = require('body-parser');
 const {ObjectID} = require('mongodb');
@@ -56,6 +57,29 @@ app.delete('/todos/:id', (req, res) => {
             return res.send({"message": "No such todo found"});
         }
         res.status(204).send({todo});
+    }).catch((e) => res.status(500).send({"message": "Fatal error!"}));
+});
+
+app.patch('/todos/:id', (req, res) => {
+    let {id} = req.params;
+    let body = _.pick(req.body, ['text', 'completed']);
+
+    if(!ObjectID.isValid(id)) {
+        return res.status(400).send(`Malformed input ${id}.`);
+    }
+
+    if(_.isBoolean(body.completed) && body.completed) {
+        body.completedAt = new Date().getTime();
+    } else {
+        body.completed = false;
+        body.completedAt = null;
+    }
+
+    TodoModel.findByIdAndUpdate(id, {$set: body}, {new: true}).then((todo) => {
+        if(!todo) {
+            return res.send({"message": "No such todo found"});
+        }
+        res.status(203).send({todo});
     }).catch((e) => res.status(500).send({"message": "Fatal error!"}));
 });
 
