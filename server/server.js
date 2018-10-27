@@ -45,6 +45,20 @@ app.get('/todos/:id', (req, res) => {
     }).catch((e) => res.status(500).send({}));
 });
 
+app.delete('/todos/:id', (req, res) => {
+    let {id} = req.params;
+
+    if(!ObjectID.isValid(id)) {
+        return res.status(400).send(`Malformed input ${id}.`);
+    }
+    TodoModel.findByIdAndDelete(id).then((todo) => {
+        if(!todo) {
+            return res.send({"message": "No such todo found"});
+        }
+        res.status(204).send({todo});
+    }).catch((e) => res.status(500).send({"message": "Fatal error!"}));
+});
+
 app.listen(port, () => {
     console.log(`Started on port ${port}`);
 });

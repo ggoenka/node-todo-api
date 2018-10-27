@@ -101,3 +101,32 @@ describe('GET /todos/:id', () => {
             .end(done);
     });
 });
+
+describe('DELETE /todos/:id', () => {
+
+    it('should remove a todo successfully', (done) => {
+        let id = todos[0]._id.toHexString();
+        request(app)
+            .delete(`/todos/${id}`)
+            .expect(204)
+            .end((err, res) => {
+                if(err) {
+                    return done(err);
+                }
+                TodoModel.findById(id).then((todo) => {
+                    expect(todo).toBeFalsy();
+                    done();
+                }).catch((e) => done(e));
+            });
+    });
+
+    it('should fail to remove a todo on bad id input', (done) => {
+        request(app)
+            .delete(`/todos/${todos[0]._id.toHexString() + '1'}`)
+            .expect(400)
+            .expect((res) => {
+                expect(res.text).toBe(`Malformed input ${todos[0]._id.toHexString() + '1'}.`);
+            })
+            .end(done);
+    });
+});
